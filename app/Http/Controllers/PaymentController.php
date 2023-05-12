@@ -10,6 +10,7 @@ class PaymentController extends Controller
     {
         return view('pay.index');
     }
+
     public function make_payment()
     {
         $formData = [
@@ -85,9 +86,39 @@ class PaymentController extends Controller
             ),
         ));
 
+        $responses = curl_exec($curl);
+        curl_close($curl);
+
+
+         return $responses;
+
+    }
+
+    public function view_payment_with_reference($reference)
+    {
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "https://api.paystack.co/transaction/verify/$reference",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer " . env('PAYSTACK_SECRET_KEY'),
+                "Cache-Control: no-cache",
+            ),
+        ));
+
         $response = curl_exec($curl);
         curl_close($curl);
 
-        return  $response;
+        $responses = json_decode($response, true);
+
+        if ($responses) {
+            return view('pay.reference', ['responses' => $responses ]);
+        }
     }
 }

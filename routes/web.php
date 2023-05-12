@@ -21,3 +21,5 @@ Route::get('/', function () {
 Route::get('/pay', [PaymentController::class, 'pay']);
 Route::post('/pay', [PaymentController::class, 'make_payment'])->name('pay');
 Route::get('/pay/callback', [PaymentController::class, 'payment_callback'])->name('pay.callback');
+
+Route::get('/verify-payment/{reference}', [PaymentController::class, 'view_payment_with_reference']);
