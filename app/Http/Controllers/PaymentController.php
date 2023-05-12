@@ -18,14 +18,20 @@ class PaymentController extends Controller
             'amount' => request('amount') * 100,
             'callback_url' => route('pay.callback')
         ];
+
         $pay = json_decode($this->initiate_payment($formData));
+
         if ($pay) {
             if ($pay->status) {
                 return redirect($pay->data->authorization_url);
-            } else {
+            }
+
+            if (! $pay->status) {
                 return back()->withError($pay->message);
             }
-        } else {
+        }
+
+        if (! $pay) {
             return back()->withError("Something went wrong");
         }
     }
@@ -33,14 +39,21 @@ class PaymentController extends Controller
     public function payment_callback()
     {
         $response = json_decode($this->verify_payment(request('reference')));
+
         if ($response) {
+
             if ($response->status) {
                 $data = $response->data;
                 return view('pay.callback_page')->with(compact(['data']));
-            } else {
+            }
+
+            if (! $response->status) {
                 return back()->withError($response->message);
             }
-        } else {
+
+        }
+
+        if (! $response) {
             return back()->withError("Something went wrong");
         }
     }
@@ -90,7 +103,7 @@ class PaymentController extends Controller
         curl_close($curl);
 
 
-         return $responses;
+        return $responses;
 
     }
 
